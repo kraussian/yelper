@@ -4,6 +4,7 @@ from   glob import glob
 from   catboost import CatBoostClassifier, Pool
 from   sklearn.model_selection import train_test_split
 from   sklearn.decomposition import PCA
+from   sklearn.metrics import classification_report
 
 # Load embeddings from parquet file
 idx = 1
@@ -46,8 +47,10 @@ def train_catboost(
         model.fit(X_train, y_train)
 
     # Evaluate the model
+    y_pred = model.predict(X_test)
     accuracy = model.score(X_test, y_test)
     print(f"Test Accuracy: {accuracy}")
+    print(classification_report(y_test, y_pred))
 
     # Return model
     return model
@@ -67,18 +70,29 @@ Test Accuracy: 0.5768
 # Train model using 1k its & 0.05 LR
 model = train_catboost(X, y, iterations=1000, learning_rate=0.05)
 """
-0:      learn: 1.5801091        total: 12.7ms   remaining: 12.7s
-100:    learn: 0.9830431        total: 1.18s    remaining: 10.5s
-200:    learn: 0.8644613        total: 2.37s    remaining: 9.43s
-300:    learn: 0.7952683        total: 3.56s    remaining: 8.27s
-400:    learn: 0.7404948        total: 4.69s    remaining: 7s
-500:    learn: 0.6942478        total: 5.82s    remaining: 5.8s
-600:    learn: 0.6517177        total: 6.94s    remaining: 4.6s
-700:    learn: 0.6145193        total: 8.07s    remaining: 3.44s
-800:    learn: 0.5798404        total: 9.21s    remaining: 2.29s
-900:    learn: 0.5483491        total: 10.3s    remaining: 1.14s
-999:    learn: 0.5202302        total: 11.5s    remaining: 0us
+0:      learn: 1.5801091        total: 16ms     remaining: 15.9s
+100:    learn: 0.9830431        total: 1.17s    remaining: 10.4s
+200:    learn: 0.8644612        total: 2.32s    remaining: 9.23s
+300:    learn: 0.7952684        total: 3.47s    remaining: 8.06s
+400:    learn: 0.7404947        total: 4.69s    remaining: 7.01s
+500:    learn: 0.6942478        total: 5.86s    remaining: 5.84s
+600:    learn: 0.6517176        total: 7.08s    remaining: 4.7s
+700:    learn: 0.6145193        total: 8.28s    remaining: 3.53s
+800:    learn: 0.5798405        total: 9.51s    remaining: 2.36s
+900:    learn: 0.5483492        total: 10.7s    remaining: 1.18s
+999:    learn: 0.5202302        total: 12s      remaining: 0us
 Test Accuracy: 0.5868
+              precision    recall  f1-score   support
+
+           0       0.71      0.74      0.72       985
+           1       0.50      0.51      0.50      1005
+           2       0.50      0.47      0.49       989
+           3       0.52      0.53      0.52      1000
+           4       0.70      0.69      0.69      1021
+
+    accuracy                           0.59      5000
+   macro avg       0.59      0.59      0.59      5000
+weighted avg       0.59      0.59      0.59      5000
 """
 
 # Train model using CatBoost Pooling
@@ -88,7 +102,7 @@ model_pool = train_catboost(X, y, pool=True)
 target_dim = 50
 pca = PCA(n_components=target_dim)
 X_reduced = pca.fit_transform(X)
-model_pca = train_catboost(X_reduced, y)
+model_pca = train_catboost(X_reduced, y, iterations=1000, learning_rate=0.05)
 """
 0:      learn: 1.5566618        total: 6ms      remaining: 3s
 100:    learn: 0.9471062        total: 520ms    remaining: 2.05s
