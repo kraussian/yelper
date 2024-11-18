@@ -104,11 +104,27 @@ pca = PCA(n_components=target_dim)
 X_reduced = pca.fit_transform(X)
 model_pca = train_catboost(X_reduced, y, iterations=1000, learning_rate=0.05)
 """
-0:      learn: 1.5566618        total: 6ms      remaining: 3s
-100:    learn: 0.9471062        total: 520ms    remaining: 2.05s
-200:    learn: 0.8215244        total: 1.03s    remaining: 1.54s
-300:    learn: 0.7414304        total: 1.56s    remaining: 1.03s
-400:    learn: 0.6778344        total: 2.07s    remaining: 512ms
-499:    learn: 0.6244050        total: 2.58s    remaining: 0us
-Test Accuracy: 0.5704
+0:      learn: 1.5823591        total: 6.28ms   remaining: 6.27s
+100:    learn: 1.0627331        total: 534ms    remaining: 4.75s
+200:    learn: 0.9476590        total: 1.07s    remaining: 4.25s
+300:    learn: 0.8764312        total: 1.59s    remaining: 3.68s
+400:    learn: 0.8223342        total: 2.12s    remaining: 3.16s
+500:    learn: 0.7781336        total: 2.63s    remaining: 2.62s
+600:    learn: 0.7401851        total: 3.15s    remaining: 2.09s
+700:    learn: 0.7067294        total: 3.68s    remaining: 1.57s
+800:    learn: 0.6754077        total: 4.22s    remaining: 1.05s
+900:    learn: 0.6475003        total: 4.74s    remaining: 520ms
+999:    learn: 0.6212730        total: 5.26s    remaining: 0us
+Test Accuracy: 0.5716
+              precision    recall  f1-score   support
+
+           0       0.70      0.72      0.71       985
+           1       0.48      0.48      0.48      1005
+           2       0.48      0.47      0.47       989
+           3       0.51      0.50      0.50      1000
+           4       0.69      0.69      0.69      1021
+
+    accuracy                           0.57      5000
+   macro avg       0.57      0.57      0.57      5000
+weighted avg       0.57      0.57      0.57      5000
 """
