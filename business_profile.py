@@ -8,7 +8,6 @@
 # Don't forget to let the JDK installer set JAVA_HOME environment variable
 
 # Import required libraries
-import json
 import re
 import pandas as pd
 from   pyspark.sql import SparkSession
@@ -28,10 +27,15 @@ filename = 'yelp_academic_dataset_review.json'
 
 # Sample random records using PySpark
 def spark_sample(filename, samples=1000):
-    # Initialize SparkSession
+    # Initialize SparkSession in Local mode
     spark = SparkSession.builder \
         .appName("RandomSampling") \
+        .master("local[*]") \
+        .config("spark.sql.warehouse.dir", "/tmp") \
+        .config("spark.hadoop.home.dir", "/dummy") \
         .getOrCreate()
+    # Disable Spark warning messages, only alert on errors
+    spark.sparkContext.setLogLevel("ERROR")
     df_spark = spark.read.json(filename)
     # Get random samples. `fraction` is the proportion of data to sample
     # Note: This method won't sample the exact number of records specified
@@ -129,7 +133,7 @@ def extract_likes_dislikes(record, debug=False):
     return review_record
 
 # Extract random samples from data
-df = spark_sample(filename, samples=50)
+df = spark_sample(filename, samples=100)
 # Initialize list
 reviews = []
 # Iterate through samples and extract Liked/Disliked
@@ -137,4 +141,11 @@ for _, row in tqdm(df.iterrows(), total=df.shape[0]):
     reviews.append(extract_likes_dislikes(row))
 
 # View output as a DataFrame
-pd.DataFrame(reviews)[['review_id', 'liked', 'disliked']]
+df_tmp = pd.DataFrame(reviews)[['review_id', 'liked', 'disliked']]
+df_reviews = pd.merge(
+    df_tmp.explode(column='liked')[['review_id','liked']],
+    df_tmp.explode(column='disliked')[['review_id','disliked']],
+    on=['review_id'],
+    how='outer'
+).reset_index(drop=True)
+#del df, reviews, row, df_tmp
